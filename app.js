@@ -23,8 +23,8 @@ function update() {
   clearCanvas()
 
   drawAllGrids()
-  drawAllNodes()
   drawAllLines()
+  drawAllNodes()
 }
 
 
@@ -89,7 +89,7 @@ function newNode(x, y, color='black') {
   var node = new Node({id: uuid.v4(), path, x, y, color: color})
 
   nodes.push(node)
-  drawNode(node)
+  update()
   // saveNode(node)
 }
 
@@ -125,17 +125,16 @@ function Line(props) {
 }
 
 function newLine(point1, point2) {
-  console.log('new line', point1, point2)
   var path = new Path2D(); 
   var line = new Line({id: uuid.v4(), path, point1, point2})
 
   lines.push(line)
-  drawLine(line)
+  console.log(lines)
+  update()
   // saveLine(line)
 }
 
 function drawLine(line) {
-  console.log('drawing', line)
   ctx.moveTo(line.point1.x, line.point1.y)
   ctx.lineTo(line.point2.x, line.point2.y)
   ctx.stroke()
@@ -149,23 +148,15 @@ function drawAllLines() {
 
 
 // ################## Event Listeners
+
+// hover grid or node ? cursor pointer
 canvas.addEventListener('mousemove', (e) => {
   var mouseX = parseInt(e.clientX - offsetX);
   var mouseY = parseInt(e.clientY - offsetY);
 
-  if(ctx.isPointInStroke(grids[0].path1, mouseX, mouseY)) {
-    canvas.style.cursor = 'pointer'
-  } 
-  else if(ctx.isPointInStroke(grids[0].path2, mouseX, mouseY)) {
-    canvas.style.cursor = 'pointer'
-  } 
-  else if(ctx.isPointInStroke(grids[1].path1, mouseX, mouseY)) {
-    canvas.style.cursor = 'pointer'
-  } 
-  else if(ctx.isPointInStroke(grids[1].path2, mouseX, mouseY)) {
-    canvas.style.cursor = 'pointer'
-  } 
-  
+  var isOnNode = nodes.some(node => ctx.isPointInPath(node.path, mouseX, mouseY))
+  var isOnGrid = grids.some(grid => ctx.isPointInStroke(grid.path1, mouseX, mouseY) || ctx.isPointInStroke(grid.path2, mouseX, mouseY))
+  if(isOnNode || isOnGrid) canvas.style.cursor = 'pointer'
   else canvas.style.cursor = 'inherit'
 });
 
@@ -201,6 +192,7 @@ canvas.addEventListener('dblclick', (e) => {
 });
 
 canvas.addEventListener('click', (e) => {
+  e.stopPropagation()
   var mouseX = parseInt(e.clientX - offsetX);
   var mouseY = parseInt(e.clientY - offsetY);
 
@@ -227,7 +219,6 @@ canvas.addEventListener('click', (e) => {
     }
 
   }
-  console.log(activeNodes)
   update()
 });
 
