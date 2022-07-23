@@ -160,35 +160,13 @@ canvas.addEventListener('mousemove', (e) => {
   else canvas.style.cursor = 'inherit'
 });
 
+// listen for dbl click events to make new nodes
 canvas.addEventListener('dblclick', (e) => {
   var mouseX = parseInt(e.clientX - offsetX);
   var mouseY = parseInt(e.clientY - offsetY);
 
-  // listen for click events to make new nodes
-  if(ctx.isPointInStroke(grids[0].path1, mouseX, mouseY)) {
-    if(!nodes.length) newNode(mouseX, mouseY)
-    else nodes.forEach(node => {
-      if(!ctx.isPointInPath(node.path, mouseX, mouseY)) newNode(mouseX, mouseY)
-    })
-  }
-  else if(ctx.isPointInStroke(grids[0].path2, mouseX, mouseY)) {
-    if(!nodes.length) newNode(mouseX, mouseY)
-    else nodes.forEach(node => {
-      if(!ctx.isPointInPath(node.path, mouseX, mouseY)) newNode(mouseX, mouseY)
-    })
-  }
-  else if(ctx.isPointInStroke(grids[1].path1, mouseX, mouseY)) {
-    if(!nodes.length) newNode(mouseX, mouseY)
-    else nodes.forEach(node => {
-      if(!ctx.isPointInPath(node.path, mouseX, mouseY)) newNode(mouseX, mouseY)
-    })
-  }
-  else if(ctx.isPointInStroke(grids[1].path2, mouseX, mouseY)) {
-    if(!nodes.length) newNode(mouseX, mouseY)
-    else nodes.forEach(node => {
-      if(!ctx.isPointInPath(node.path, mouseX, mouseY)) newNode(mouseX, mouseY)
-    })
-  }
+  var isOnGrid = grids.some(grid => ctx.isPointInStroke(grid.path1, mouseX, mouseY) || ctx.isPointInStroke(grid.path2, mouseX, mouseY))
+  if(isOnGrid) newNode(mouseX, mouseY)
 });
 
 canvas.addEventListener('click', (e) => {
