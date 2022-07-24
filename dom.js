@@ -25,9 +25,9 @@ function Dom() {
 
     lines.forEach((line, index) => {
       // calculate distance of line
-      var distance = Math.floor(Math.hypot(line.point1.x - line.point2.x, line.point1.y - line.point2.y))
+      var distance = Math.floor(Math.hypot(line.node1.x - line.node2.x, line.node1.y - line.node2.y))
       // get nodes in line alphebetized 
-      var nodesInLine = nodes.filter(node => ctx.isPointInPath(node.path, line.point1.x, line.point1.y) || ctx.isPointInPath(node.path, line.point2.x, line.point2.y))
+      var nodesInLine = nodes.filter(node => ctx.isPointInPath(node.path, line.node1.x, line.node1.y) || ctx.isPointInPath(node.path, line.node2.x, line.node2.y))
       var firstNodeAlpha = getAlphaFromIndex(nodes.indexOf(nodesInLine[0]))
       var secondNodeAlpha = getAlphaFromIndex(nodes.indexOf(nodesInLine[1]))
       var nodesAlphabetized = [firstNodeAlpha, secondNodeAlpha].sort()

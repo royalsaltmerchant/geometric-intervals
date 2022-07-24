@@ -26,12 +26,12 @@ function update() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  console.log("*********** Clear")
   clearCanvas()
 
   drawAllGrids()
-  drawAllLines()
   drawAllNodes()
+  drawAllLines()
+  dom.renderNodeAlphabet(nodes)
   dom.renderDataDisplay(lines, nodes, ctx)
 }
 
@@ -92,12 +92,12 @@ function newNode(x, y, color='black') {
 
   nodes.push(node)
 
-  dom.renderNodeAlphabet(nodes)
   update()
   // saveNode(node)
 }
 
 function drawNode(node) {
+  node.path = new Path2D()
   node.path.arc(node.x, node.y, 10, 0, 2 * Math.PI, false)
   ctx.fillStyle = node.color
   ctx.fill(node.path)
@@ -137,16 +137,16 @@ function saveNode(node) {
 function Line(props) {
   this.id = props.id
   this.path = props.path
-  this.point1 = props.point1
-  this.point2 = props.point2
+  this.node1 = props.node1
+  this.node2 = props.node2
 
   return this
 }
 
-function newLine(point1, point2) {
-  if(isAlreadyLine(point1, point2)) return
+function newLine(node1, node2) {
+  if(isAlreadyLine(node1, node2)) return
   var path = new Path2D(); 
-  var line = new Line({id: uuid.v4(), path, point1, point2})
+  var line = new Line({id: uuid.v4(), path, node1, node2})
 
   lines.push(line)
   update()
@@ -154,10 +154,11 @@ function newLine(point1, point2) {
 }
 
 function drawLine(line) {
+  line.path = new Path2D()
   ctx.lineWidth = 3
   ctx.strokeStyle = 'blue'
-  line.path.moveTo(line.point1.x, line.point1.y)
-  line.path.lineTo(line.point2.x, line.point2.y)
+  line.path.moveTo(line.node1.x, line.node1.y)
+  line.path.lineTo(line.node2.x, line.node2.y)
   ctx.stroke(line.path)
 }
 
@@ -167,15 +168,15 @@ function drawAllLines() {
   })
 }
 
-function isAlreadyLine(point1, point2) {
-  var newLine = {point1, point2}
+function isAlreadyLine(node1, node2) {
+  var newLine = {node1, node2}
   var isLine = lines.some(line => {
-    var point1IsEqual = line.point1.x === newLine.point1.x && line.point1.y === newLine.point1.y
-    var point2IsEqual = line.point2.x === newLine.point2.x && line.point2.y === newLine.point2.y
-    var point1IsEqualToPoint2 = line.point1.x === newLine.point2.x && line.point1.y === newLine.point2.y
-    var point2IsEqualToPoint1 = line.point2.x === newLine.point1.x && line.point2.y === newLine.point1.y
-    if(point1IsEqual && point2IsEqual) return true
-    else if(point1IsEqualToPoint2 && point2IsEqualToPoint1) return true
+    var node1IsEqual = line.node1.x === newLine.node1.x && line.node1.y === newLine.node1.y
+    var node2IsEqual = line.node2.x === newLine.node2.x && line.node2.y === newLine.node2.y
+    var node1IsEqualToNode2 = line.node1.x === newLine.node2.x && line.node1.y === newLine.node2.y
+    var node2IsEqualToNode1 = line.node2.x === newLine.node1.x && line.node2.y === newLine.node1.y
+    if(node1IsEqual && node2IsEqual) return true
+    else if(node1IsEqualToNode2 && node2IsEqualToNode1) return true
     else return false
   })
   return isLine
@@ -183,12 +184,11 @@ function isAlreadyLine(point1, point2) {
 
 function removeLinesConnectedToNode(node) {
   var linesConntectedToNode = lines.filter(line => {
-    var nodeIsPoint1 = line.point1.x === node.x && line.point1.y === node.y
-    var nodeIsPoint2 = line.point2.x === node.x && line.point2.y === node.y
-    if(nodeIsPoint1 || nodeIsPoint2) return line
+    var nodeIsnode1 = line.node1.x === node.x && line.node1.y === node.y
+    var nodeIsnode2 = line.node2.x === node.x && line.node2.y === node.y
+    if(nodeIsnode1 || nodeIsnode2) return line
   })
   linesConntectedToNode.forEach(line => {if(lines.includes(line)) lines.splice(lines.indexOf(line), 1)})
-  console.log(lines)
 }
 
 
@@ -240,7 +240,7 @@ canvas.addEventListener('click', (e) => {
         activeNodes.push(nodeInPath)
         var firstNode = activeNodes[0]
         var secondNode = activeNodes[1]
-        newLine({x: firstNode.x, y: firstNode.y}, {x: secondNode.x, y: secondNode.y})
+        newLine(firstNode, secondNode)
         // reset active nodes
         activeNodes.forEach(node => node.color = 'black')
         resetActiveNodes()
@@ -251,12 +251,36 @@ canvas.addEventListener('click', (e) => {
   update()
 });
 
-// on delete key, remove node if highlighted
+// handle key commands
 document.addEventListener('keyup', (e) => {
   var key = e.key;
   if(key === "Backspace" || key === "Delete") {
     if(activeNodes[0]) {
       removeNode(activeNodes[0])
+    }
+  }
+  if(key === 'ArrowUp') {
+    if(activeNodes[0]) {
+      activeNodes[0].y -= 1
+      update()
+    }
+  }
+  if(key === 'ArrowDown') {
+    if(activeNodes[0]) {
+      activeNodes[0].y += 1
+      update()
+    }
+  }
+  if(key === 'ArrowLeft') {
+    if(activeNodes[0]) {
+      activeNodes[0].x -= 1
+      update()
+    }
+  }
+  if(key === 'ArrowRight') {
+    if(activeNodes[0]) {
+      activeNodes[0].x += 1
+      update()
     }
   }
 })
