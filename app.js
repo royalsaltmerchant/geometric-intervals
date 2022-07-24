@@ -113,6 +113,8 @@ function removeNode(node) {
   nodes.splice(nodes.indexOf(node), 1)
   resetActiveNodes()
   // nodeStore.removeNode(node.id)
+  // remove lines attached to nodes
+  removeLinesConnectedToNode(node)
   update()
 }
 
@@ -136,6 +138,7 @@ function Line(props) {
 }
 
 function newLine(point1, point2) {
+  if(isAlreadyLine(point1, point2)) return
   var path = new Path2D(); 
   var line = new Line({id: uuid.v4(), path, point1, point2})
 
@@ -145,15 +148,41 @@ function newLine(point1, point2) {
 }
 
 function drawLine(line) {
-  ctx.moveTo(line.point1.x, line.point1.y)
-  ctx.lineTo(line.point2.x, line.point2.y)
-  ctx.stroke()
+  ctx.lineWidth = 3
+  ctx.strokeStyle = 'blue'
+  line.path.moveTo(line.point1.x, line.point1.y)
+  line.path.lineTo(line.point2.x, line.point2.y)
+  ctx.stroke(line.path)
 }
 
 function drawAllLines() {
   lines.forEach(line => {
     drawLine(line)
   })
+}
+
+function isAlreadyLine(point1, point2) {
+  var newLine = {point1, point2}
+  var isLine = lines.some(line => {
+    var point1IsEqual = line.point1.x === newLine.point1.x && line.point1.y === newLine.point1.y
+    var point2IsEqual = line.point2.x === newLine.point2.x && line.point2.y === newLine.point2.y
+    var point1IsEqualToPoint2 = line.point1.x === newLine.point2.x && line.point1.y === newLine.point2.y
+    var point2IsEqualToPoint1 = line.point2.x === newLine.point1.x && line.point2.y === newLine.point1.y
+    if(point1IsEqual && point2IsEqual) return true
+    else if(point1IsEqualToPoint2 && point2IsEqualToPoint1) return true
+    else return false
+  })
+  return isLine
+}
+
+function removeLinesConnectedToNode(node) {
+  var linesConntectedToNode = lines.filter(line => {
+    var nodeIsPoint1 = line.point1.x === node.x && line.point1.y === node.y
+    var nodeIsPoint2 = line.point2.x === node.x && line.point2.y === node.y
+    if(nodeIsPoint1 || nodeIsPoint2) return line
+  })
+  linesConntectedToNode.forEach(line => {if(lines.includes(line)) lines.splice(lines.indexOf(line), 1)})
+  console.log(lines)
 }
 
 
