@@ -43,4 +43,4 @@ function NodeStore() {
   return this
 }
 
-var nodeStore = new NodeStore()
+export var nodeStore = new NodeStore()

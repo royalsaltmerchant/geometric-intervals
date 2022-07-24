@@ -1,8 +1,11 @@
+import {nodeStore} from './store.js'
+import {dom} from './dom.js'
+
 // setup
-var canvas = document.querySelector("Canvas");
+var canvas = document.querySelector("canvas");
 var ctx = canvas.getContext('2d');
-var width = window.innerWidth;
-var height = window.innerHeight - 50;
+var width = window.innerHeight;
+var height = window.innerHeight;
 canvas.width  = width;
 canvas.height = height;
 var canvasRect = canvas.getBoundingClientRect()
@@ -19,18 +22,17 @@ var lines = []
 var activeNodes = []
 
 function update() {
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
   console.log("*********** Clear")
   clearCanvas()
 
   drawAllGrids()
   drawAllLines()
   drawAllNodes()
-}
-
-
-// clear
-function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  dom.renderDataDisplay(lines, nodes, ctx)
 }
 
 // ############## grids
@@ -89,6 +91,8 @@ function newNode(x, y, color='black') {
   var node = new Node({id: uuid.v4(), path, x, y, color: color})
 
   nodes.push(node)
+
+  dom.renderNodeAlphabet(nodes)
   update()
   // saveNode(node)
 }
@@ -115,6 +119,8 @@ function removeNode(node) {
   // nodeStore.removeNode(node.id)
   // remove lines attached to nodes
   removeLinesConnectedToNode(node)
+
+  dom.renderNodeAlphabet(nodes)
   update()
 }
 
@@ -256,8 +262,8 @@ document.addEventListener('keyup', (e) => {
 })
 
 // INIT
-var grid2 = new Grid({step: width/50, color: 'gray', lineWidth: 1})
-var grid1 = new Grid({step: width/10, color: 'black', lineWidth: 2})
+var grid2 = new Grid({step: height/50, color: 'gray', lineWidth: 1})
+var grid1 = new Grid({step: height/10, color: 'black', lineWidth: 2})
 grids.push(grid2)
 grids.push(grid1)
 update()

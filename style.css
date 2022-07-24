@@ -15,6 +15,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   height: 100vh;
   margin: 0;
+  display: flex;
 }
 
 header {
@@ -22,10 +23,42 @@ header {
   height: 50px;
 }
 
-p {
-
-}
-
 #canvas {
   background-color: rgb(255, 255, 255);
+  overflow: scroll;
+}
+
+.node-alpha {
+  z-index: 2;
+  padding: 3px 5px;
+  color: rgb(173, 0, 173);
+  font-weight: bolder;
+  background-color: white;
+  border: 2px solid black;
+  border-radius: 10px;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.data-display {
+  z-index: 2;
+  height: 100vh;
+  background-color: white;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid black;
+}
+
+#lines {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+}
+
+.line-distance {
+  
 }
