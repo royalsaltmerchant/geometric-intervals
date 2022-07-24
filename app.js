@@ -105,6 +105,17 @@ function drawAllNodes() {
   })
 }
 
+function resetActiveNodes() {
+  activeNodes = []
+}
+
+function removeNode(node) {
+  nodes.splice(nodes.indexOf(node), 1)
+  resetActiveNodes()
+  // nodeStore.removeNode(node.id)
+  update()
+}
+
 function saveNode(node) {
   var newNode = {id: node.id, x: node.x, y:node.y, color: node.color}
   var nodes = nodeStore.getStoredNodes()
@@ -129,7 +140,6 @@ function newLine(point1, point2) {
   var line = new Line({id: uuid.v4(), path, point1, point2})
 
   lines.push(line)
-  console.log(lines)
   update()
   // saveLine(line)
 }
@@ -166,11 +176,17 @@ canvas.addEventListener('dblclick', (e) => {
   var mouseY = parseInt(e.clientY - offsetY);
 
   var isOnGrid = grids.some(grid => ctx.isPointInStroke(grid.path1, mouseX, mouseY) || ctx.isPointInStroke(grid.path2, mouseX, mouseY))
-  if(isOnGrid) newNode(mouseX, mouseY)
+  var nodeInPath = nodes.filter(node => ctx.isPointInPath(node.path, mouseX, mouseY))[0]
+  if(!isOnGrid) {
+    return
+  } 
+  else if(!nodeInPath) {
+    newNode(mouseX, mouseY)
+  } else removeNode(nodeInPath)
 });
 
+// active node on click event
 canvas.addEventListener('click', (e) => {
-  e.stopPropagation()
   var mouseX = parseInt(e.clientX - offsetX);
   var mouseY = parseInt(e.clientY - offsetY);
 
@@ -192,13 +208,23 @@ canvas.addEventListener('click', (e) => {
         newLine({x: firstNode.x, y: firstNode.y}, {x: secondNode.x, y: secondNode.y})
         // reset active nodes
         activeNodes.forEach(node => node.color = 'black')
-        activeNodes = []
+        resetActiveNodes()
       }
     }
 
   }
   update()
 });
+
+// on delete key, remove node if highlighted
+document.addEventListener('keyup', (e) => {
+  var key = e.key;
+  if(key === "Backspace" || key === "Delete") {
+    if(activeNodes[0]) {
+      removeNode(activeNodes[0])
+    }
+  }
+})
 
 // INIT
 var grid2 = new Grid({step: width/50, color: 'gray', lineWidth: 1})
