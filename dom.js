@@ -17,7 +17,6 @@ function Dom() {
       elem.style.top = node.y + 10 + 'px'
       elem.style.left = node.x + 5 + 'px'
       elem.innerText = alpha
-      console.log(elem)
       document.body.appendChild(elem)
     })
   }
@@ -25,6 +24,8 @@ function Dom() {
   this.renderDataDisplay = function(lines, nodes, ctx) {
     // clear line distance
     for(var input of document.querySelectorAll(".line-distance")) input.remove()
+
+    var lineElements = []
 
     lines.forEach((line, index) => {
       // calculate distance of line
@@ -37,9 +38,18 @@ function Dom() {
       // create dom element
       var elem = document.createElement('div')
       elem.classList.add('line-distance')
+      elem.accessKey = nodesAlphabetized[0] + nodesAlphabetized[1]
       elem.innerText = `${nodesAlphabetized[0]} → ${nodesAlphabetized[1]} = ${distance}`
-      document.getElementById('lines').appendChild(elem)
-    })    
+      lineElements.push(elem)
+    })  
+    // sort alphabetically
+    lineElements.sort(function(a, b){
+      if(a.accessKey < b.accessKey) { return -1; }
+      if(a.accessKey > b.accessKey) { return 1; }
+      return 0;
+    })
+    // render
+    lineElements.forEach(elem => document.getElementById('lines').appendChild(elem))
   }
 
   return this
