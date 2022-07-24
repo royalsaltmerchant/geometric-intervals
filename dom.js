@@ -1,9 +1,5 @@
 function Dom() {
 
-  this.clearLineDistance = function() {
-
-  }
-
   this.renderNodeAlphabet = function(nodes) {
     // clear node alphabet on canvas
     for(var input of document.querySelectorAll(".node-alpha")) input.remove()
