@@ -19,8 +19,13 @@ function Dom() {
       dom.tonic = parseInt(e.target.value)
       update()
     })
-
     elem.appendChild(input)
+    var freqButton = document.createElement('button')
+    freqButton.innerText = `Listen`
+    elem.appendChild(freqButton)
+    freqButton.addEventListener('mouseup', (e) => {
+      audioControl.start(this.tonic)
+    })
   }
 
   this.renderOctave = function() {
