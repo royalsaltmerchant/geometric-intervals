@@ -268,6 +268,8 @@ document.addEventListener('keyup', (e) => {
     if(activeNodes[0]) {
       activeNodes[0].removeNode()
     }
+
+    update()
   }
   if(key === 'ArrowUp') {
     if(activeNodes[0]) {

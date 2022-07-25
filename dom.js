@@ -4,6 +4,7 @@ var height = window.innerHeight
 
 function Dom() {
   this.tonic = 1000
+  this.octave = 1
 
   this.renderTonic = function() {
     var elem = document.getElementById('tonic')
@@ -14,6 +15,21 @@ function Dom() {
     input.max = '40000'
     input.addEventListener('change', (e) => {
       dom.tonic = parseInt(e.target.value)
+      update()
+    })
+
+    elem.appendChild(input)
+  }
+
+  this.renderOctave = function() {
+    var elem = document.getElementById('octave')
+    var input = document.createElement('input')
+    input.value = this.octave
+    input.type = "number"
+    input.min = '1'
+    input.max = '10'
+    input.addEventListener('change', (e) => {
+      dom.octave = parseInt(e.target.value)
       update()
     })
 
@@ -125,6 +141,7 @@ function Dom() {
         else {
           if(firstLength.length > secondLength.length) {
             var firstDividedBySecond = (firstLength.length / secondLength.length).toFixed(2)
+            while((firstDividedBySecond * dom.tonic) > dom.tonic * (this.octave + 1)) firstDividedBySecond /= 2
             var elem = document.createElement('div')
             elem.classList.add('line-relationship')
             elem.accessKey = firstDividedBySecond
@@ -144,6 +161,7 @@ function Dom() {
   }
 
   this.renderTonic()
+  this.renderOctave()
   return this
 }
 
