@@ -157,7 +157,7 @@ function Dom() {
             `
             var frequency = (firstDividedBySecond * dom.tonic).toFixed(2)
             var freqButton = document.createElement('button')
-            freqButton.innerText = `(${frequency}hz)`
+            freqButton.innerText = `${frequency} hz`
             elem.appendChild(freqButton)
             freqButton.addEventListener('mouseup', (e) => {
               audioControl.start(frequency)
