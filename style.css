@@ -53,6 +53,10 @@ header {
   border: 1px solid black;
 }
 
+.data-display hr {
+  width: 90%;
+}
+
 #lines {
   display: flex;
   flex-direction: column;
@@ -60,6 +64,10 @@ header {
   width: max-content;
 }
 
-.line-distance {
+.node-position {
+  display: flex;
+}
 
+.node-position p {
+  margin: 0px 5px;
 }

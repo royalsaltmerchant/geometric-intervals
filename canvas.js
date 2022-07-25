@@ -2,26 +2,26 @@ import {nodeStore} from './store.js'
 import {dom} from './dom.js'
 
 // setup
-var canvas = document.querySelector("canvas");
-var ctx = canvas.getContext('2d');
-var width = window.innerHeight;
-var height = window.innerHeight;
-canvas.width  = width;
-canvas.height = height;
+var canvas = document.querySelector("canvas")
+var ctx = canvas.getContext('2d')
+var width = window.innerHeight
+var height = window.innerHeight
+canvas.width  = width
+canvas.height = height
 var canvasRect = canvas.getBoundingClientRect()
 var canvasOffset = { 
   top: canvasRect.top + window.scrollY, 
   left: canvasRect.left + window.scrollX, 
 };
-var offsetX = canvasOffset.left;
-var offsetY = canvasOffset.top;
+var offsetX = canvasOffset.left
+var offsetY = canvasOffset.top
 // lists
 var grids = []
 var nodes = []
 var lines = []
 var activeNodes = []
 
-function update() {
+window.update = function() {
   function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
@@ -43,34 +43,32 @@ function Grid(props) {
   this.color = props.color
   this.lineWidth = props.lineWidth
 
+  this.drawGrid = function() {
+    for (var x=0;x<=width;x+=this.step) {
+      this.path1.moveTo(x, 0);
+      this.path1.lineTo(x, height);
+    }
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = this.lineWidth;
+  
+    ctx.stroke(this.path1);
+  
+    for (var y=0;y<=height;y+=this.step) {
+      this.path2.moveTo(0, y);
+      this.path2.lineTo(width, y);
+    }
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = this.lineWidth;
+  
+    ctx.stroke(this.path2); 
+  };
+
   return this
 }
 
-function drawGrid(grid) {
-  var {path1, path2, step, color, lineWidth} = grid
-  for (var x=0;x<=width;x+=step) {
-    path1.moveTo(x, 0);
-    path1.lineTo(x, height);
-  }
-  // set the color of the line
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-
-  ctx.stroke(path1);
-
-  for (var y=0;y<=height;y+=step) {
-    path2.moveTo(0, y);
-    path2.lineTo(width, y);
-  }
-  ctx.strokeStyle = color;
-  ctx.lineWidth = lineWidth;
-
-  ctx.stroke(path2); 
-};
-
 function drawAllGrids() {
   grids.forEach(grid => {
-    drawGrid(grid)
+    grid.drawGrid()
   })
 }
 
@@ -83,6 +81,34 @@ function Node(props) {
   this.y = props.y 
   this.color = props.color
 
+  this.setPath = function(path) {
+    this.path = path
+  }
+
+  this.setColor = function(color) {
+    this.color = color
+  }
+
+  this.setCoords = function(coords) {
+    if(coords.x) this.x = coords.x
+    if(coords.y) this.y = coords.y
+  }
+
+  this.drawNode = function() {
+    this.setPath(new Path2D())
+    this.path.arc(this.x, this.y, 10, 0, 2 * Math.PI, false)
+    ctx.fillStyle = this.color
+    ctx.fill(this.path)
+  }
+
+  this.removeNode = function() {
+    nodes.splice(nodes.indexOf(this), 1)
+    resetActiveNodes()
+    // nodeStore.removeNode(node.id)
+    // remove lines attached to nodes
+    removeLinesConnectedToNode(this)
+  }
+
   return this
 }
 
@@ -91,21 +117,11 @@ function newNode(x, y, color='black') {
   var node = new Node({id: uuid.v4(), path, x, y, color: color})
 
   nodes.push(node)
-
-  update()
-  // saveNode(node)
-}
-
-function drawNode(node) {
-  node.path = new Path2D()
-  node.path.arc(node.x, node.y, 10, 0, 2 * Math.PI, false)
-  ctx.fillStyle = node.color
-  ctx.fill(node.path)
 }
 
 function drawAllNodes() {
   nodes.forEach(node => {
-    drawNode(node)
+    node.drawNode()
   })
 }
 
@@ -113,24 +129,13 @@ function resetActiveNodes() {
   activeNodes = []
 }
 
-function removeNode(node) {
-  nodes.splice(nodes.indexOf(node), 1)
-  resetActiveNodes()
-  // nodeStore.removeNode(node.id)
-  // remove lines attached to nodes
-  removeLinesConnectedToNode(node)
-
-  dom.renderNodeAlphabet(nodes)
-  update()
-}
-
-function saveNode(node) {
-  var newNode = {id: node.id, x: node.x, y:node.y, color: node.color}
-  var nodes = nodeStore.getStoredNodes()
-  var isAlreadyNode = nodes.some(node => node.id === newNode.id)
-  if(!isAlreadyNode) nodeStore.addNode(newNode)
-  else nodeStore.saveNode(newNode)
-}
+// function saveNode(node) {
+//   var newNode = {id: node.id, x: node.x, y:node.y, color: node.color}
+//   var nodes = nodeStore.getStoredNodes()
+//   var isAlreadyNode = nodes.some(node => node.id === newNode.id)
+//   if(!isAlreadyNode) nodeStore.addNode(newNode)
+//   else nodeStore.saveNode(newNode)
+// }
 
 // ############### Lines
 
@@ -139,6 +144,19 @@ function Line(props) {
   this.path = props.path
   this.node1 = props.node1
   this.node2 = props.node2
+
+  this.setPath = function(path) {
+    this.path = path
+  }
+
+  this.drawLine = function() {
+    this.setPath(new Path2D())
+    ctx.lineWidth = 3
+    ctx.strokeStyle = 'blue'
+    this.path.moveTo(this.node1.x, this.node1.y)
+    this.path.lineTo(this.node2.x, this.node2.y)
+    ctx.stroke(this.path)
+  }
 
   return this
 }
@@ -149,22 +167,12 @@ function newLine(node1, node2) {
   var line = new Line({id: uuid.v4(), path, node1, node2})
 
   lines.push(line)
-  update()
   // saveLine(line)
-}
-
-function drawLine(line) {
-  line.path = new Path2D()
-  ctx.lineWidth = 3
-  ctx.strokeStyle = 'blue'
-  line.path.moveTo(line.node1.x, line.node1.y)
-  line.path.lineTo(line.node2.x, line.node2.y)
-  ctx.stroke(line.path)
 }
 
 function drawAllLines() {
   lines.forEach(line => {
-    drawLine(line)
+    line.drawLine()
   })
 }
 
@@ -194,7 +202,7 @@ function removeLinesConnectedToNode(node) {
 
 // ################## Event Listeners
 
-// hover grid or node ? cursor pointer
+// hover grid or node to set cursor pointer
 canvas.addEventListener('mousemove', (e) => {
   var mouseX = parseInt(e.clientX - offsetX);
   var mouseY = parseInt(e.clientY - offsetY);
@@ -217,7 +225,9 @@ canvas.addEventListener('dblclick', (e) => {
   } 
   else if(!nodeInPath) {
     newNode(mouseX, mouseY)
-  } else removeNode(nodeInPath)
+  } else nodeInPath.removeNode()
+
+  update()
 });
 
 // active node on click event
@@ -229,25 +239,25 @@ canvas.addEventListener('click', (e) => {
   if(nodeInPath) {
     if(!activeNodes.length) {
       activeNodes.push(nodeInPath)
-      nodeInPath.color = 'blue'
+      nodeInPath.setColor('blue')
     }
     else if(activeNodes.length === 1) {
       var isActive = activeNodes.some(activeNode => activeNode.id === nodeInPath.id)
       if(isActive) {
         activeNodes.splice(activeNodes.indexOf(nodeInPath), 1)
-        nodeInPath.color = 'black'
+        nodeInPath.setColor('black')
       } else {
         activeNodes.push(nodeInPath)
         var firstNode = activeNodes[0]
         var secondNode = activeNodes[1]
         newLine(firstNode, secondNode)
         // reset active nodes
-        activeNodes.forEach(node => node.color = 'black')
+        activeNodes.forEach(node => node.setColor('black'))
         resetActiveNodes()
       }
     }
-
   }
+
   update()
 });
 
@@ -256,38 +266,47 @@ document.addEventListener('keyup', (e) => {
   var key = e.key;
   if(key === "Backspace" || key === "Delete") {
     if(activeNodes[0]) {
-      removeNode(activeNodes[0])
+      activeNodes[0].removeNode()
     }
   }
   if(key === 'ArrowUp') {
     if(activeNodes[0]) {
-      activeNodes[0].y -= 1
-      update()
+      activeNodes[0].setCoords({y: activeNodes[0].y - 1})
     }
+
+    update()
   }
   if(key === 'ArrowDown') {
     if(activeNodes[0]) {
-      activeNodes[0].y += 1
-      update()
+      activeNodes[0].setCoords({y: activeNodes[0].y + 1})
     }
+
+    update()
   }
   if(key === 'ArrowLeft') {
     if(activeNodes[0]) {
-      activeNodes[0].x -= 1
-      update()
+      activeNodes[0].setCoords({x: activeNodes[0].x - 1})
     }
+
+    update()
   }
   if(key === 'ArrowRight') {
     if(activeNodes[0]) {
-      activeNodes[0].x += 1
-      update()
+      activeNodes[0].setCoords({x: activeNodes[0].x + 1})
     }
+
+    update()
   }
 })
 
 // INIT
-var grid2 = new Grid({step: height/50, color: 'gray', lineWidth: 1})
-var grid1 = new Grid({step: height/10, color: 'black', lineWidth: 2})
-grids.push(grid2)
-grids.push(grid1)
-update()
+function initApp() {
+  var grid2 = new Grid({step: height/50, color: 'gray', lineWidth: 1})
+  var grid1 = new Grid({step: height/10, color: 'black', lineWidth: 2})
+  grids.push(grid2)
+  grids.push(grid1)
+
+  update()
+}
+
+initApp()
