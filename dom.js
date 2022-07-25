@@ -1,3 +1,5 @@
+import { audioControl } from './audio.js'
+
 var width = window.innerHeight
 var height = window.innerHeight
 
@@ -146,8 +148,15 @@ function Dom() {
             elem.classList.add('line-relationship')
             elem.accessKey = firstDividedBySecond
             elem.innerText = `
-              ${firstLength.node1}-${firstLength.node2} / ${secondLength.node1}-${secondLength.node2} = ${firstDividedBySecond} (${(firstDividedBySecond * dom.tonic).toFixed(2)}hz)
+              ${firstLength.node1}-${firstLength.node2} / ${secondLength.node1}-${secondLength.node2} = ${firstDividedBySecond}
             `
+            var frequency = (firstDividedBySecond * dom.tonic).toFixed(2)
+            var freqButton = document.createElement('button')
+            freqButton.innerText = `(${frequency}hz)`
+            elem.appendChild(freqButton)
+            freqButton.addEventListener('mouseup', (e) => {
+              audioControl.start(frequency)
+            })
             lineRelationships.push(elem)
           }
         }
