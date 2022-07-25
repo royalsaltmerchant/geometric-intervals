@@ -66,7 +66,7 @@ function Dom() {
     })
   }
 
-  this.renderDataDisplay = function(lines, nodes, ctx) {
+  this.renderLineData = function(lines, nodes, ctx) {
     // clear line distance
     for(var input of document.querySelectorAll(".line-distance")) input.remove()
 

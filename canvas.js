@@ -32,7 +32,7 @@ window.update = function() {
   drawAllNodes()
   drawAllLines()
   dom.renderNodeAlphabet(nodes)
-  dom.renderDataDisplay(lines, nodes, ctx)
+  dom.renderLineData(lines, nodes, ctx)
 }
 
 // ############## grids
