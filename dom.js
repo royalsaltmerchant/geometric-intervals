@@ -48,6 +48,10 @@ function Dom() {
     for(var nodeAlpha of document.querySelectorAll(".node-alpha")) nodeAlpha.remove()
     for(var nodePosition of document.querySelectorAll(".node-position")) nodePosition.remove()
 
+    // fragments for optimization
+    var nodeAlphaFragments = new DocumentFragment()
+    var nodeDataFragments = new DocumentFragment()
+
     nodes.forEach((node, index) => {
       var alpha = getAlphaFromIndex(index)
       // canvas elems
@@ -57,7 +61,8 @@ function Dom() {
       elem.style.top = node.y + 10 + 'px'
       elem.style.left = node.x + 5 + 'px'
       elem.innerText = alpha
-      document.body.appendChild(elem)
+      nodeAlphaFragments.appendChild(elem)
+
       // data node position
       var normalNodePosition = getNormalizedNodePosition(node.x, node.y)
 
@@ -101,10 +106,13 @@ function Dom() {
         update()
       })
       elemData.appendChild(inputY)
-      
-      document.getElementById('nodes').appendChild(elemData)
+      nodeDataFragments.appendChild(elemData)
     })
+    // append fragments
+    document.body.appendChild(nodeAlphaFragments)
+    document.getElementById('nodes').appendChild(nodeDataFragments)
   }
+  
 
   this.renderLineData = function(lines, nodes, ctx) {
     // clear line lengths
@@ -138,7 +146,9 @@ function Dom() {
       return 0;
     })
     // render line lengths
-    lineElements.forEach(elem => document.getElementById('lengths').appendChild(elem))
+    var lineLengthFragments = new DocumentFragment()
+    lineElements.forEach(elem => lineLengthFragments.appendChild(elem))
+    document.getElementById('lengths').appendChild(lineLengthFragments)
 
     var lineRelationships = []
     // Line relationships
@@ -169,9 +179,11 @@ function Dom() {
     })
 
     lineRelationships.sort((a, b) => a.accessKey - b.accessKey)
+    var lineRelationshipFragments = new DocumentFragment()
     lineRelationships.forEach(elem => {
-      document.getElementById('relationships').appendChild(elem)
+      lineRelationshipFragments.appendChild(elem)
     })
+    document.getElementById('relationships').appendChild(lineRelationshipFragments)
   }
 
   this.renderTonic()
