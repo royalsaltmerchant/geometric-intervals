@@ -32,7 +32,19 @@
     </div>
     <br>
     <div id="relationships">
-      <h4>Line Relationships:</h4>
+      <div style="display: flex;">
+        <button id="options" style="margin-right: 10px">Options</button>
+        <h4>Line Relationships:</h4>  
+      </div>
+    </div>
+  </div>
+  <div id="options-modal">
+    <div id="options-modal-layout">
+      <div>
+        <label for="duplicates">No Duplicates</label>
+        <input type="checkbox" name="duplicates" id="duplicates">
+      </div>
+      <button onmousedown="document.getElementById('options-modal').style.display = 'none'">Close</button>
     </div>
   </div>
 </body>

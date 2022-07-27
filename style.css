@@ -83,3 +83,26 @@ h2 {
 .node-position p {
   margin: 0px 5px;
 }
+
+#options-modal {
+  position: absolute;
+  background-color: rgba(170, 170, 170, 0.745);
+  z-index: 3;
+  width: 100vw;
+  height: 100vh;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#options-modal-layout {
+  background-color: white;
+  height: 200px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  
+}

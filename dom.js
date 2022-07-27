@@ -7,6 +7,7 @@ var height = window.innerHeight
 function Dom() {
   this.tonic = 1000
   this.octave = 1
+  this.noDuplicates = false
 
   this.renderTonic = function() {
     var elem = document.getElementById('tonic')
@@ -41,6 +42,22 @@ function Dom() {
     })
 
     elem.appendChild(input)
+  }
+
+  this.toggleOptions = function() {
+    // toggle modal
+    var button = document.getElementById('options')
+    var modal = document.getElementById('options-modal')
+    button.addEventListener('mouseup', () => {
+      modal.style.display = 'flex'
+    })
+
+    // options
+    var duplicatesCheckBox = document.getElementById('duplicates')
+    duplicatesCheckBox.addEventListener('click', (e) => {
+      this.noDuplicates = duplicatesCheckBox.checked
+      update()
+    })
   }
 
   this.renderNodeAlphabet = function(nodes) {
@@ -179,6 +196,7 @@ function Dom() {
     })
 
     lineRelationships.sort((a, b) => a.accessKey - b.accessKey)
+    if(this.noDuplicates) lineRelationships = lineRelationships.filter((v,i,a) => a.findIndex(v2 =>(v2.accessKey === v.accessKey)) === i)
     var lineRelationshipFragments = new DocumentFragment()
     lineRelationships.forEach(elem => {
       lineRelationshipFragments.appendChild(elem)
@@ -188,6 +206,7 @@ function Dom() {
 
   this.renderTonic()
   this.renderOctave()
+  this.toggleOptions()
   return this
 }
 
